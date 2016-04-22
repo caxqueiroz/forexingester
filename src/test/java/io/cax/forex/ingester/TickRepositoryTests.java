@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
  * Created by cq on 22/4/16.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ForexIngesterApp.class)
+@SpringApplicationConfiguration(classes = TestConfig.class)
 @ActiveProfiles("test")
 public class TickRepositoryTests {
 

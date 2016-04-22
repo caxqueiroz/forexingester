@@ -14,7 +14,7 @@ import static org.junit.Assert.assertThat;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ForexIngesterApp.class)
+@SpringApplicationConfiguration(classes = TestConfig.class)
 @ActiveProfiles("test")
 public class InstrumentsLoaderTests {
 
