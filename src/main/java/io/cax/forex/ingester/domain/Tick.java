@@ -1,34 +1,24 @@
 package io.cax.forex.ingester.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
  * Created by cq on 15/4/16.
+ * {"tick":{"instrument":"EUR_USD","time":"1461396366924145","bid":1.13929,"ask":1.14029}}
  */
 @JsonRootName(value = "tick")
 @Entity
 public class Tick {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
-
-    //{"tick":{"instrument":"EUR_USD","time":"2016-04-08T20:59:58.540499Z","bid":1.13929,"ask":1.14029}}
-    private String instrument;
-
     @JsonProperty("time")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.S", locale = "ENGLISH")
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime dateTime;
+    private long time;
+
+    private String instrument;
 
     private double bid;
 
@@ -42,12 +32,12 @@ public class Tick {
         this.instrument = instrument;
     }
 
-    public DateTime getDateTime() {
-        return dateTime;
+    public long getTime() {
+        return time;
     }
 
-    public void setDateTime(DateTime dateTime) {
-        this.dateTime = dateTime;
+    public void setTime(long dateTime) {
+        this.time = dateTime;
     }
 
     public double getBid() {
@@ -66,19 +56,12 @@ public class Tick {
         this.ask = ask;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Tick{");
         sb.append("instrument='").append(instrument).append('\'');
-        sb.append(", dateTime=").append(dateTime);
+        sb.append(", time=").append(time);
         sb.append(", bid=").append(bid);
         sb.append(", ask=").append(ask);
         sb.append('}');

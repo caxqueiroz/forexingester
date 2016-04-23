@@ -2,8 +2,7 @@ package io.cax.forex.ingester;
 
 import io.cax.forex.ingester.domain.Tick;
 import io.cax.forex.ingester.repositories.TickRepository;
-import org.joda.time.DateTime;
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ public class TickRepositoryTests {
     @Autowired
     TickRepository repository;
 
-    @Before
+    @After
     public void tearDown(){
         repository.deleteAll();
     }
@@ -42,7 +41,7 @@ public class TickRepositoryTests {
     public void testRetrieveTick() throws Exception{
 
         Tick returnedTick = saveTick();
-        repository.findAll().forEach(tick -> assertThat(tick.getDateTime(),equalTo(returnedTick.getDateTime())));
+        repository.findAll().forEach(tick -> assertThat(tick.getTime(),equalTo(returnedTick.getTime())));
 
 
     }
@@ -51,7 +50,7 @@ public class TickRepositoryTests {
         Tick tick = new Tick();
         tick.setAsk(2.222);
         tick.setBid(2.333);
-        tick.setDateTime(DateTime.now());
+        tick.setTime(1461396366924145L);
         tick.setInstrument("AUD/USD");
 
         return repository.save(tick);

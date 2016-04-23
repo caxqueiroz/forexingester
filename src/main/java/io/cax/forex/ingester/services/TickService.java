@@ -1,8 +1,6 @@
 package io.cax.forex.ingester.services;
 
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cax.forex.ingester.Utils;
 import io.cax.forex.ingester.domain.Tick;
 import io.cax.forex.ingester.repositories.TickRepository;
 import org.slf4j.Logger;
@@ -12,19 +10,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 /**
  * Created by cq on 17/4/16.
  */
 @Service
+@EnableAsync
 public class TickService {
 
     Logger logger = LoggerFactory.getLogger(TickService.class);
@@ -44,8 +45,19 @@ public class TickService {
 
     private RestOperations restTemplate;
 
+    private TickRepository repository;
+
     @Autowired
-    TickRepository repository;
+    public void setRepository(TickRepository repository) {
+        this.repository = repository;
+    }
+
+    private InstrumentsService instrumentsService;
+
+    @Autowired
+    public void setInstrumentsService(InstrumentsService instrumentsService) {
+        this.instrumentsService = instrumentsService;
+    }
 
     private boolean running;
 
@@ -53,21 +65,21 @@ public class TickService {
     /**
      * Starts the data streaming.
      */
+    @Async
     public void startStreaming(){
 
         running = true;
         restTemplate = new RestTemplate();
 
-
         UriComponents uriComponents = UriComponentsBuilder
                 .fromUriString(domain)
                 .path("/v1/prices")
                 .queryParam("accountId",accountId)
-                .queryParam("instruments",instruments).build();
+                .queryParam("instruments",instrumentsService.instruments()).build();
 
         restTemplate.execute(uriComponents.toUriString(),
                 HttpMethod.GET,
-                clientHttpRequest -> clientHttpRequest.getHeaders().add("Authorization","Bearer " + accessToken),
+                clientHttpRequest -> setHeaders(clientHttpRequest),
                 clientHttpResponse -> {
                     try(Scanner scanner = new Scanner(clientHttpResponse.getBody(),"utf-8")){
 
@@ -91,20 +103,20 @@ public class TickService {
      */
     private void saveTick(String content){
 
-        ObjectMapper mapper = new ObjectMapper();
+        Tick tick = Utils.convertToTick(content);
+        if(tick!=null) repository.save(tick);
 
-        try {
-
-            mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
-            Tick tick = mapper.readValue(content,Tick.class);
-            logger.debug(mapper.writer(new DefaultPrettyPrinter()).writeValueAsString(tick));
-            repository.save(tick);
-
-        } catch (IOException e) {
-            logger.debug("heartbeat not processed: " + e.getMessage());
-        }
     }
 
 
+    private ClientHttpRequest setHeaders(ClientHttpRequest clientHttpRequest){
+        clientHttpRequest.getHeaders().add("X-Accept-Datetime-Format","UNIX");
+        clientHttpRequest.getHeaders().add("Authorization","Bearer " + accessToken);
+        return clientHttpRequest;
+    }
+
+    public long ticksProcessed(){
+        return repository.count();
+    }
 
 }
