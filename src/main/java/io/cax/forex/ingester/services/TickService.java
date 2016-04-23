@@ -40,8 +40,6 @@ public class TickService {
     @Value("${oanda.domain}")
     private String domain;
 
-    @Value("${oanda.instruments}")
-    private String instruments;
 
     private RestOperations restTemplate;
 
@@ -116,6 +114,7 @@ public class TickService {
     }
 
     public long ticksProcessed(){
+        logger.debug("ticksProcessed called!!");
         return repository.count();
     }
 
