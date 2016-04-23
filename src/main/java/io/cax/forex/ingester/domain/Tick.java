@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 /**
  * Created by cq on 15/4/16.
@@ -12,6 +14,7 @@ import javax.persistence.Id;
  */
 @JsonRootName(value = "tick")
 @Entity
+@Table(indexes = @Index(name = "instrument_idx", columnList = "instrument", unique = false))
 public class Tick {
 
     @Id
