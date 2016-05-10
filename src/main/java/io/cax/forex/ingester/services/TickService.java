@@ -20,6 +20,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by cq on 17/4/16.
@@ -57,7 +58,7 @@ public class TickService {
         this.instrumentsService = instrumentsService;
     }
 
-    private boolean running;
+    private AtomicBoolean running = new AtomicBoolean();
 
 
     /**
@@ -66,7 +67,10 @@ public class TickService {
     @Async
     public void startStreaming(){
 
-        running = true;
+        if(running.get()==true) return; //already running.
+
+        running.compareAndSet(false,true);
+
         restTemplate = new RestTemplate();
 
         UriComponents uriComponents = UriComponentsBuilder
@@ -81,7 +85,7 @@ public class TickService {
                 clientHttpResponse -> {
                     try(Scanner scanner = new Scanner(clientHttpResponse.getBody(),"utf-8")){
 
-                        while(scanner.hasNext() && running) saveTick(scanner.nextLine());
+                        while(scanner.hasNext() && running.get()) saveTick(scanner.nextLine());
                     }
                     return new ResponseEntity<>(HttpStatus.OK);
                 });
@@ -91,7 +95,8 @@ public class TickService {
      * Stops the data streaming
      */
     public void stopStreaming(){
-        running = false;
+
+        running.compareAndSet(true, false);
     }
 
 
@@ -101,8 +106,15 @@ public class TickService {
      */
     private void saveTick(String content){
 
-        Tick tick = Utils.convertToTick(content);
-        if(tick!=null) repository.save(tick);
+        try{
+
+            Tick tick = Utils.convertToTick(content);
+            if(tick!=null) repository.save(tick);
+
+        } catch(Exception e){
+            logger.error("Error saving tick: " + e.getMessage());
+        }
+
 
     }
 

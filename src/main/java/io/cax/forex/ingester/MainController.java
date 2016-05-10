@@ -22,9 +22,9 @@ public class MainController {
         this.service = service;
     }
 
-    @RequestMapping(path = "/start")
-    public ResponseEntity startStream() throws IOException {
 
+    @RequestMapping(path = "/start")
+    public ResponseEntity startStream() throws IOException{
         service.startStreaming();
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -5,7 +5,7 @@
 
 	<groupId>io.cax.forex</groupId>
 	<artifactId>forexingester</artifactId>
-	<version>1.0-MASTER</version>
+	<version>1.1-MASTER</version>
 	<packaging>jar</packaging>
 
 	<name>forex-ingester</name>
