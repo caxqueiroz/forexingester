@@ -42,7 +42,7 @@ public class TickService {
     private String domain;
 
 
-    private RestOperations restTemplate;
+    private final RestOperations restTemplate = new RestTemplate();
 
     private TickRepository repository;
 
@@ -71,24 +71,29 @@ public class TickService {
 
         running.compareAndSet(false,true);
 
-        restTemplate = new RestTemplate();
-
         UriComponents uriComponents = UriComponentsBuilder
                 .fromUriString(domain)
                 .path("/v1/prices")
                 .queryParam("accountId",accountId)
                 .queryParam("instruments",instrumentsService.instruments()).build();
 
-        restTemplate.execute(uriComponents.toUriString(),
-                HttpMethod.GET,
-                clientHttpRequest -> setHeaders(clientHttpRequest),
-                clientHttpResponse -> {
-                    try(Scanner scanner = new Scanner(clientHttpResponse.getBody(),"utf-8")){
+        try{
 
-                        while(scanner.hasNext() && running.get()) saveTick(scanner.nextLine());
-                    }
-                    return new ResponseEntity<>(HttpStatus.OK);
-                });
+            restTemplate.execute(uriComponents.toUriString(),
+                    HttpMethod.GET,
+                    clientHttpRequest -> setHeaders(clientHttpRequest),
+                    clientHttpResponse -> {
+                        try(Scanner scanner = new Scanner(clientHttpResponse.getBody(),"utf-8")){
+
+                            while(scanner.hasNext() && running.get()) saveTick(scanner.nextLine());
+                        }
+                        return new ResponseEntity<>(HttpStatus.OK);
+                    });
+
+        }catch(Exception e){
+            logger.error("Error reading from the remote connection",e);
+        }
+
     }
 
     /**
