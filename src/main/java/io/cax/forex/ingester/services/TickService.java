@@ -98,7 +98,7 @@ public class TickService {
             }
         }
 
-
+        return;
     }
 
     /**
@@ -109,6 +109,13 @@ public class TickService {
         running.compareAndSet(true, false);
     }
 
+    /**
+     * Checks if service is running.
+     * @return
+     */
+    public boolean isRunning(){
+        return running.get();
+    }
 
     /**
      * Processes the data and saves the tick if pertinent. Hearbeat ticks are not saved.

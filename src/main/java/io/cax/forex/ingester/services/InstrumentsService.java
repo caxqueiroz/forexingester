@@ -21,7 +21,8 @@ public class InstrumentsService {
     public String instruments(){
         final StringBuilder sb = new StringBuilder();
         repository.findAll().forEach(i -> sb.append(i.getInstrumentName()).append(","));
-        sb.deleteCharAt(sb.lastIndexOf(","));
+        if(sb.lastIndexOf(",") > 0)
+            sb.deleteCharAt(sb.lastIndexOf(","));
         return sb.toString();
     }
 
