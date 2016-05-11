@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static io.cax.forex.ingester.Utils.mean;
 
 /**
  * Created by cq on 17/4/16.
@@ -59,6 +63,22 @@ public class TickService {
     }
 
     private AtomicBoolean running = new AtomicBoolean();
+
+
+    private CounterService counterService;
+
+    @Autowired
+    public void setCounterService(CounterService counterService) {
+        this.counterService = counterService;
+    }
+
+
+    private GaugeService gaugeService;
+
+    @Autowired
+    public void setGaugeService(GaugeService service) {
+        this.gaugeService = service;
+    }
 
 
     /**
@@ -126,14 +146,22 @@ public class TickService {
         try{
 
             Tick tick = Utils.convertToTick(content);
-            if(tick!=null) repository.save(tick);
+
+            if(tick!=null){
+
+                repository.save(tick);
+                counterService.increment("tick.counter");
+                gaugeService.submit(tick.getInstrument(),mean(tick.getAsk(),tick.getBid()));
+
+            }
 
         } catch(Exception e){
             logger.error("Error saving tick: " + e.getMessage());
         }
 
-
     }
+
+
 
 
     private ClientHttpRequest setHeaders(ClientHttpRequest clientHttpRequest){

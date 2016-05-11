@@ -19,6 +19,12 @@ public class Utils {
 
     private final static ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
 
+    /**
+     *
+     * @param content
+     * @return
+     * @throws Exception
+     */
     public static Tick convertToTick(String content) throws Exception{
 
         try {
@@ -39,6 +45,22 @@ public class Utils {
         }
     }
 
+    /**
+     *
+     * @param ask
+     * @param bid
+     * @return
+     */
+    public static double mean(double ask, double bid) {
+        return (ask + bid)/2;
+    }
+
+
+    /**
+     *
+     * @param dateTime
+     * @return
+     */
     public static String printFormatDate(long dateTime){
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.").format(dateTime/1000) + String.format("%06d", dateTime%1000000);
     }
