@@ -19,7 +19,7 @@ public class Utils {
 
     private final static ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
 
-    public static Tick convertToTick(String content){
+    public static Tick convertToTick(String content) throws Exception{
 
         try {
             if(content.contains("tick")){
@@ -35,8 +35,7 @@ public class Utils {
 
 
         } catch (IOException e) {
-            logger.error(e.getMessage());
-            return null;
+            throw e;
         }
     }
 

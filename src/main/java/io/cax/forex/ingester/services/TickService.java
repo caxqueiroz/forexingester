@@ -77,22 +77,27 @@ public class TickService {
                 .queryParam("accountId",accountId)
                 .queryParam("instruments",instrumentsService.instruments()).build();
 
-        try{
+        while(running.get()){
 
-            restTemplate.execute(uriComponents.toUriString(),
-                    HttpMethod.GET,
-                    clientHttpRequest -> setHeaders(clientHttpRequest),
-                    clientHttpResponse -> {
-                        try(Scanner scanner = new Scanner(clientHttpResponse.getBody(),"utf-8")){
+            try{
 
-                            while(scanner.hasNext() && running.get()) saveTick(scanner.nextLine());
-                        }
-                        return new ResponseEntity<>(HttpStatus.OK);
-                    });
+                restTemplate.execute(uriComponents.toUriString(),
+                        HttpMethod.GET,
+                        clientHttpRequest -> setHeaders(clientHttpRequest),
+                        clientHttpResponse -> {
+                            try(Scanner scanner = new Scanner(clientHttpResponse.getBody(),"utf-8")){
 
-        }catch(Exception e){
-            logger.error("Error reading from the remote connection",e);
+                                while(scanner.hasNext()) saveTick(scanner.nextLine());
+                            }
+                            return new ResponseEntity<>(HttpStatus.OK);
+                        });
+
+            }catch(Exception e){
+
+                logger.error("Error reading from the remote connection",e);
+            }
         }
+
 
     }
 
