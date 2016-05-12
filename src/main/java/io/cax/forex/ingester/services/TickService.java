@@ -161,9 +161,7 @@ public class TickService {
 
     }
 
-
-
-
+    
     private ClientHttpRequest setHeaders(ClientHttpRequest clientHttpRequest){
         clientHttpRequest.getHeaders().add("X-Accept-Datetime-Format","UNIX");
         clientHttpRequest.getHeaders().add("Authorization","Bearer " + accessToken);

@@ -52,7 +52,7 @@ public class Utils {
      * @return
      */
     public static double mean(double ask, double bid) {
-        return (ask + bid)/2;
+        return Math.abs((ask + bid)/2);
     }
 
 

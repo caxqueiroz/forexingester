@@ -1,8 +1,11 @@
 package io.cax.forex.ingester.services;
 
+import com.google.common.collect.Lists;
 import io.cax.forex.ingester.repositories.InstrumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.stream.Collectors;
 
 /**
  * Created by cq on 23/4/16.
@@ -19,11 +22,8 @@ public class InstrumentsService {
     }
 
     public String instruments(){
-        final StringBuilder sb = new StringBuilder();
-        repository.findAll().forEach(i -> sb.append(i.getInstrumentName()).append(","));
-        if(sb.lastIndexOf(",") > 0)
-            sb.deleteCharAt(sb.lastIndexOf(","));
-        return sb.toString();
+
+        return Lists.newArrayList(repository.findAll()).stream().map(i-> i.getInstrumentName()).collect(Collectors.joining(","));
     }
 
 

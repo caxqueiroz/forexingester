@@ -3,6 +3,7 @@ package io.cax.forex.ingester;
 import io.cax.forex.ingester.domain.Tick;
 import org.junit.Test;
 
+import static io.cax.forex.ingester.Utils.mean;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -30,4 +31,15 @@ public class UtilsTests {
 
     }
 
+    @Test
+    public void testMean() throws Exception {
+        double a = 34.56;
+        double b = 78.89;
+
+        assertThat(mean(a,b), equalTo(56.725));
+
+        b = -78.89;
+
+        assertThat(mean(a,b), equalTo(22.165));
+    }
 }
